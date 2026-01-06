@@ -1,4 +1,3 @@
-77 % de l'espace de stockage utilisés … Une fois la limite atteinte, vous ne pourrez plus créer, modifier ni importer de fichiers. Partagez 100 Go d'espace de stockage avec les membres de votre famille pour 1,99 €/mois. Profitez de 50 % de remise sur les forfaits annuels pendant 1 an grâce à une offre spéciale pour le Nouvel An.
 import os
 import shutil
 
