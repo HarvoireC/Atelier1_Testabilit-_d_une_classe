@@ -16,35 +16,24 @@ import shutil
 from typing import Protocol
 
 class IFileSystem(Protocol):
-    def exists(self, path: str) -> bool: ...
-    def is_file(self, path: str) -> bool: ...
-    def is_dir(self, path: str) -> bool: ...
     def copy(self, src: str, dest: str) -> None: ...
     def move(self, src: str, dest: str) -> None: ...
     def remove(self, path: str) -> None: ...
-    def remove_dir(self, path: str) -> None: ...
 
 class RealFileSystem(IFileSystem):
-    def exists(self, path: str) -> bool:
-        return os.path.exists(path)
-
-    def is_file(self, path: str) -> bool:
-        return os.path.isfile(path)
-
-    def is_dir(self, path: str) -> bool:
-        return os.path.isdir(path)
-
     def copy(self, src: str, dest: str) -> None:
-        shutil.copy2(src, dest)
+        if os.path.exists(src):
+            shutil.copy2(src, dest)
 
     def move(self, src: str, dest: str) -> None:
-        shutil.move(src, dest)
+        if os.path.exists(src):
+            shutil.move(src, dest)
 
     def remove(self, path: str) -> None:
-        os.remove(path)
-
-    def remove_dir(self, path: str) -> None:
-        shutil.rmtree(path)
+        if os.path.isfile(path):
+            os.remove(path)
+        elif os.path.isdir(path):
+            shutil.rmtree(path)
 
 class FileSelector:
     def __init__(self):
@@ -148,8 +137,7 @@ class FileManager:
         try:
             selected_files = self.file_selector.get_selected_files()
             for file in selected_files:
-                if self.fs.exists(file):
-                    self.fs.copy(file, destination)
+                self.fs.copy(file, destination)
             print(f"{len(selected_files)} file(s) copied")
             self.file_selector.clear_selection()
         except Exception as e:
@@ -159,8 +147,7 @@ class FileManager:
         try:
             selected_files = self.file_selector.get_selected_files()
             for file in selected_files:
-                if self.fs.exists(file):
-                    self.fs.move(file, destination)
+                self.fs.move(file, destination)
             print(f"{len(selected_files)} file(s) moved")
             self.file_selector.clear_selection()
         except Exception as e:
@@ -170,10 +157,7 @@ class FileManager:
         try:
             selected_files = self.file_selector.get_selected_files()
             for file in selected_files:
-                if self.fs.is_file(file):
-                    self.fs.remove(file)
-                elif self.fs.is_dir(file):
-                    self.fs.remove_dir(file)
+                self.fs.remove(file)
             print(f"{len(selected_files)} file(s)/folder(s) deleted")
             self.file_selector.clear_selection()
         except Exception as e:
